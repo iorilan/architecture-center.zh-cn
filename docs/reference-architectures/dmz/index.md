@@ -1,18 +1,18 @@
 ---
-title: 外围网络
+title: 外围网络参考体系结构
 description: 介绍并比较用于防范 Azure 中运行的、属于混合系统的应用程序和组件遭受未授权入侵的各种方法。
 layout: LandingPage
-ms.openlocfilehash: 98df0a25767c7a7282e67381c6465fe3263ce1fa
-ms.sourcegitcommit: 3d9ee03e2dda23753661a80c7106d1789f5223bb
+ms.openlocfilehash: 759418af013aac1f284d582bacc432325361d815
+ms.sourcegitcommit: 7ced70ebc11aa0df0dc0104092d3cc6ad5c28bd6
 ms.translationtype: HT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 02/23/2018
+ms.lasthandoff: 05/11/2018
 ---
 <!-- This file is generated! -->
 <!-- See the templates in ./build/reference-architectures  -->
 <!-- See data in index.json -->
 
-# <a name="network-dmz"></a>外围网络
+# <a name="network-dmz-reference-architectures"></a>外围网络参考体系结构
 
 这些参考体系结构演示了有关创建外围网络，用于保护 Azure 虚拟网络与本地网络或 Internet 之间的边界的成熟做法。
 
