@@ -3,11 +3,11 @@ title: Azure 参考体系结构
 description: 适用于 Azure 上的常见工作负荷的参考体系结构、蓝图和规范性实施指南。
 layout: LandingPage
 ms.topic: landing-page
-ms.openlocfilehash: 4c0006404ed0c0f603e9599cd9c04e6d02fdbfeb
-ms.sourcegitcommit: a5e549c15a948f6fb5cec786dbddc8578af3be66
+ms.openlocfilehash: 6c9be20e2b831f2e6c1ffd33aa89a56375a0511c
+ms.sourcegitcommit: bb348bd3a8a4e27ef61e8eee74b54b07b65dbf98
 ms.translationtype: HT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 05/06/2018
+ms.lasthandoff: 05/21/2018
 ---
 <!-- This file is generated! -->
 <!-- See the templates in ./build/reference-architectures  -->
@@ -179,8 +179,8 @@ ms.lasthandoff: 05/06/2018
                         </div>
                     </div>
                     <div class="cardText">
-                        <h3>SAP NetWeaver 和 SAP HANA</h3>
-                        <p>在 Azure 上的高可用性环境中部署和运行 SAP NetWeaver 与 SAP HANA。</p>
+                        <h3>在 Azure 上运行 SAP</h3>
+                        <p>在 Azure 上的高可用性环境中部署和运行 SAP。</p>
                     </div>
                 </div>
             </div>

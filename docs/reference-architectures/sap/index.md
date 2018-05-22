@@ -1,241 +1,74 @@
 ---
-title: 在 Azure 上部署 SAP NetWeaver 和 SAP HANA
-description: 有关在 Azure 上的高可用性环境中运行 SAP HANA 的成熟做法。
-author: njray
-ms.date: 06/29/2017
-ms.openlocfilehash: 33171164c59a520a87ef3209c5bb1b208377221c
-ms.sourcegitcommit: c441fd165e6bebbbbbc19854ec6f3676be9c3b25
+title: Azure 上的 SAP 参考体系结构
+description: 用于在 Azure 上部署和运行 SAP 的参考体系结构。
+layout: LandingPage
+ms.date: 05/10/2018
+ms.openlocfilehash: 0ec4cb85dc0e553ac76db08ad1c8389fa8713a9e
+ms.sourcegitcommit: bb348bd3a8a4e27ef61e8eee74b54b07b65dbf98
 ms.translationtype: HT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 03/30/2018
+ms.lasthandoff: 05/21/2018
 ---
-# <a name="deploy-sap-netweaver-and-sap-hana-on-azure"></a><span data-ttu-id="09b13-103">在 Azure 上部署 SAP NetWeaver 和 SAP HANA</span><span class="sxs-lookup"><span data-stu-id="09b13-103">Deploy SAP NetWeaver and SAP HANA on Azure</span></span>
-
-<span data-ttu-id="09b13-104">此参考体系结构演示有关在 Azure 上的高可用性环境中运行 SAP HANA 的一套成熟做法。</span><span class="sxs-lookup"><span data-stu-id="09b13-104">This reference architecture shows a set of proven practices for running SAP HANA in a high availability environment on Azure.</span></span> [<span data-ttu-id="09b13-105">**部署此解决方案**。</span><span class="sxs-lookup"><span data-stu-id="09b13-105">**Deploy this solution**.</span></span>](#deploy-the-solution)
-
-<span data-ttu-id="09b13-106">![0][0]</span><span class="sxs-lookup"><span data-stu-id="09b13-106">![0][0]</span></span>
-
-<span data-ttu-id="09b13-107">下载此体系结构的 [Visio 文件][visio-download]。</span><span class="sxs-lookup"><span data-stu-id="09b13-107">*Download a [Visio file][visio-download] of this architecture.*</span></span>
-
-> [!NOTE]
-> <span data-ttu-id="09b13-108">部署此参考体系结构需要获取 SAP 产品和其他非 Microsoft 技术的相应许可。</span><span class="sxs-lookup"><span data-stu-id="09b13-108">Deploying this reference architecture requires appropriate licensing of SAP products and other non-Microsoft technologies.</span></span> <span data-ttu-id="09b13-109">有关 Microsoft 与 SAP 之间的合作关系的信息，请参阅 [Azure 上的 SAP HANA][sap-hana-on-azure]。</span><span class="sxs-lookup"><span data-stu-id="09b13-109">For information about the partnership between Microsoft and SAP, see [SAP HANA on Azure][sap-hana-on-azure].</span></span>
-
-## <a name="architecture"></a><span data-ttu-id="09b13-110">体系结构</span><span class="sxs-lookup"><span data-stu-id="09b13-110">Architecture</span></span>
-
-<span data-ttu-id="09b13-111">该体系结构包括以下组件。</span><span class="sxs-lookup"><span data-stu-id="09b13-111">The architecture consists of the following components.</span></span>
-
-- <span data-ttu-id="09b13-112">**虚拟网络 (VNet)**。</span><span class="sxs-lookup"><span data-stu-id="09b13-112">**Virtual network (VNet)**.</span></span> <span data-ttu-id="09b13-113">VNet 是 Azure 中逻辑隔离的网络的表示形式。</span><span class="sxs-lookup"><span data-stu-id="09b13-113">A VNet is a representation of a logically isolated network in Azure.</span></span> <span data-ttu-id="09b13-114">此参考体系结构中的所有 VM 将部署到同一 VNet。</span><span class="sxs-lookup"><span data-stu-id="09b13-114">All of the VMs in this reference architecture are deployed to the same VNet.</span></span> <span data-ttu-id="09b13-115">VNet 进一步细分为子网。</span><span class="sxs-lookup"><span data-stu-id="09b13-115">The VNet is further subdivided into subnets.</span></span> <span data-ttu-id="09b13-116">为每个层（包括应用程序 (SAP NetWeaver)、数据库 (SAP HANA)、管理 (Jumpbox) 和 Active Directory）创建单独的子网。</span><span class="sxs-lookup"><span data-stu-id="09b13-116">Create a separate subnet for each tier, including application (SAP NetWeaver), database (SAP HANA), management (the jumpbox), and Active Directory.</span></span>
-
-- <span data-ttu-id="09b13-117">**虚拟机 (VM)**。</span><span class="sxs-lookup"><span data-stu-id="09b13-117">**Virtual machines (VMs)**.</span></span> <span data-ttu-id="09b13-118">此体系结构的 VM 将分组到多个不同的层。</span><span class="sxs-lookup"><span data-stu-id="09b13-118">The VMs for this architecture are grouped into several distinct tiers.</span></span>
-
-    - <span data-ttu-id="09b13-119">**SAP NetWeaver**。</span><span class="sxs-lookup"><span data-stu-id="09b13-119">**SAP NetWeaver**.</span></span> <span data-ttu-id="09b13-120">包括 SAP ASCS、SAP Web 调度程序和 SAP 应用程序服务器。</span><span class="sxs-lookup"><span data-stu-id="09b13-120">Includes SAP ASCS, SAP Web Dispatcher, and the SAP application servers.</span></span> 
-    
-    - <span data-ttu-id="09b13-121">**SAP HANA**。</span><span class="sxs-lookup"><span data-stu-id="09b13-121">**SAP HANA**.</span></span> <span data-ttu-id="09b13-122">此参考体系结构对单个 [GS5][vm-sizes-mem] 实例上运行的数据库层使用 SAP HANA。</span><span class="sxs-lookup"><span data-stu-id="09b13-122">This reference architecture uses SAP HANA for the database tier, running on a single [GS5][vm-sizes-mem] instance.</span></span> <span data-ttu-id="09b13-123">SAP HANA 经认证适合用于 GS5 或 [Azure 上的 SAP HANA 大型实例][azure-large-instances] 中的生产 OLAP 工作负荷。</span><span class="sxs-lookup"><span data-stu-id="09b13-123">SAP HANA is certified for production OLAP workloads on GS5 or [SAP HANA on Azure Large Instances][azure-large-instances].</span></span> <span data-ttu-id="09b13-124">此参考体系结构适用于 G 系列和 M 系列中的 Azure 虚拟机。</span><span class="sxs-lookup"><span data-stu-id="09b13-124">This reference architecture is for Azure virtual machines in the G-series and M-series.</span></span> <span data-ttu-id="09b13-125">有关 Azure 上的 SAP HANA 大型实例的信息，请参阅 [Azure 上的 SAP HANA（大型实例）概述和体系结构][azure-large-instances]。</span><span class="sxs-lookup"><span data-stu-id="09b13-125">For information about SAP HANA on Azure Large Instances, see [SAP HANA (large instances) overview and architecture on Azure][azure-large-instances].</span></span>
-   
-    - <span data-ttu-id="09b13-126">**Jumpbox**。</span><span class="sxs-lookup"><span data-stu-id="09b13-126">**Jumpbox**.</span></span> <span data-ttu-id="09b13-127">也称为守护主机。</span><span class="sxs-lookup"><span data-stu-id="09b13-127">Also called a bastion host.</span></span> <span data-ttu-id="09b13-128">这是管理员在网络上用来连接其他 VM 的安全 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-128">This is a secure VM on the network that administrators use to connect to the other VMs.</span></span> 
-     
-    - <span data-ttu-id="09b13-129">**Windows Server Active Directory (AD) 域控制器。**</span><span class="sxs-lookup"><span data-stu-id="09b13-129">**Windows Server Active Directory (AD) domain controllers.**</span></span> <span data-ttu-id="09b13-130">域控制器用于配置 Windows Server 故障转移群集（请参阅下文）。</span><span class="sxs-lookup"><span data-stu-id="09b13-130">The domain controllers are used to configure the Windows Server Failover Cluster (see below).</span></span>
- 
-- <span data-ttu-id="09b13-131">**可用性集**。</span><span class="sxs-lookup"><span data-stu-id="09b13-131">**Availability sets**.</span></span> <span data-ttu-id="09b13-132">将 SAP Web 调度程序、SAP 应用程序服务器和 SAP ACSC 角色的 VM 放入单独的可用性集，并为每个角色至少预配两个 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-132">Place the VMs for the SAP Web Dispatcher, SAP application server, and SAP ACSC roles into separate availability sets, and provision at least two VMs for each role.</span></span> <span data-ttu-id="09b13-133">这样，VM 便可以满足更高的服务级别协议 (SLA)。</span><span class="sxs-lookup"><span data-stu-id="09b13-133">This makes the VMs eligible for a higher service level agreement (SLA).</span></span>
-    
-- <span data-ttu-id="09b13-134">**NIC。**</span><span class="sxs-lookup"><span data-stu-id="09b13-134">**NICs.**</span></span> <span data-ttu-id="09b13-135">运行 SAP NetWeaver 和 SAP HANA 的 VM 需要两个网络接口 (NIC)。</span><span class="sxs-lookup"><span data-stu-id="09b13-135">The VMs that run SAP NetWeaver and SAP HANA require two network interfaces (NICs).</span></span> <span data-ttu-id="09b13-136">每个 NIC 分配到不同的子网，以分离不同类型的流量。</span><span class="sxs-lookup"><span data-stu-id="09b13-136">Each NIC is assigned to a different subnet, to segregate different types of traffic.</span></span> <span data-ttu-id="09b13-137">有关详细信息，请参阅下面的[建议](#recommendations)。</span><span class="sxs-lookup"><span data-stu-id="09b13-137">See [Recommendations](#recommendations) below for more information.</span></span>
-
-- <span data-ttu-id="09b13-138">**Windows Server 故障转移群集**。</span><span class="sxs-lookup"><span data-stu-id="09b13-138">**Windows Server Failover Cluster**.</span></span> <span data-ttu-id="09b13-139">将运行 SAP ACSC 的 VM 配置为故障转移群集，以实现高可用性。</span><span class="sxs-lookup"><span data-stu-id="09b13-139">The VMs that run SAP ACSC are configured as a failover cluster for high availability.</span></span> <span data-ttu-id="09b13-140">为了支持故障转移群集，SIOS DataKeeper Cluster Edition 会通过复制群集节点拥有的独立磁盘来执行群集共享卷 (CSV) 功能。</span><span class="sxs-lookup"><span data-stu-id="09b13-140">To support the failover cluster, SIOS DataKeeper Cluster Edition performs the cluster shared volume (CSV) function by replicating independent disks owned by the cluster nodes.</span></span> <span data-ttu-id="09b13-141">有关详细信息，请参阅[在 Microsoft 平台上运行 SAP 应用程序][running-sap]。</span><span class="sxs-lookup"><span data-stu-id="09b13-141">For details, see [Running SAP applications on the Microsoft platform][running-sap].</span></span>
-    
-- <span data-ttu-id="09b13-142">**负载均衡器。**</span><span class="sxs-lookup"><span data-stu-id="09b13-142">**Load balancers.**</span></span> <span data-ttu-id="09b13-143">使用两个 [Azure 负载均衡器][azure-lb]实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-143">Two [Azure Load Balancer][azure-lb] instances are used.</span></span> <span data-ttu-id="09b13-144">示意图左侧显示的第一个负载均衡器将流量分配到 SAP Web 调度程序 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-144">The first, shown on the left of the diagram, distributes traffic to the SAP Web Dispatcher VMs.</span></span> <span data-ttu-id="09b13-145">此配置可根据 [SAP Web 调度程序的高可用性][sap-dispatcher-ha]中所述实现并行 Web 调度程序选项。</span><span class="sxs-lookup"><span data-stu-id="09b13-145">This configuration implements the parallel web dispatcher option described in [High Availability of the SAP Web Dispatcher][sap-dispatcher-ha].</span></span> <span data-ttu-id="09b13-146">右侧显示的第二个负载均衡器通过将传入的连接定向到活动/正常的节点，在 Windows 服务器故障转移群集中启用故障转移。</span><span class="sxs-lookup"><span data-stu-id="09b13-146">The second load balancer, shown on the right, enables failover in the Windows Server Failover Cluster, by directing incoming connections to the active/healthy node.</span></span>
-
-- <span data-ttu-id="09b13-147">**VPN 网关。**</span><span class="sxs-lookup"><span data-stu-id="09b13-147">**VPN Gateway.**</span></span> <span data-ttu-id="09b13-148">VPN 网关将本地网络扩展到 Azure VNet。</span><span class="sxs-lookup"><span data-stu-id="09b13-148">The VPN Gateway extends your on-premises network to the Azure VNet.</span></span> <span data-ttu-id="09b13-149">也可以使用 ExpressRoute，该选项使用不绕道公共 Internet 的专用连接。</span><span class="sxs-lookup"><span data-stu-id="09b13-149">You can also use ExpressRoute, which uses a dedicated private connection that does not go over the public Internet.</span></span> <span data-ttu-id="09b13-150">示例解决方案中未部署网关。</span><span class="sxs-lookup"><span data-stu-id="09b13-150">The example solution does not deploy the gateway.</span></span> <span data-ttu-id="09b13-151">有关详细信息，请参阅[将本地网络连接到 Azure][hybrid-networking]。</span><span class="sxs-lookup"><span data-stu-id="09b13-151">For more information, see [Connect an on-premises network to Azure][hybrid-networking].</span></span>
-
-## <a name="recommendations"></a><span data-ttu-id="09b13-152">建议</span><span class="sxs-lookup"><span data-stu-id="09b13-152">Recommendations</span></span>
-
-<span data-ttu-id="09b13-153">你的要求可能不同于此处描述的体系结构。</span><span class="sxs-lookup"><span data-stu-id="09b13-153">Your requirements might differ from the architecture described here.</span></span> <span data-ttu-id="09b13-154">请使用以下建议作为入手点。</span><span class="sxs-lookup"><span data-stu-id="09b13-154">Use these recommendations as a starting point.</span></span>
-
-### <a name="load-balancers"></a><span data-ttu-id="09b13-155">负载均衡器</span><span class="sxs-lookup"><span data-stu-id="09b13-155">Load balancers</span></span>
-
-<span data-ttu-id="09b13-156">[SAP Web 调度程序][sap-dispatcher]处理对发往双堆栈服务器（ABAP 和 Java）的 HTTP(S) 流量的负载均衡。</span><span class="sxs-lookup"><span data-stu-id="09b13-156">[SAP Web Dispatcher][sap-dispatcher] handles load balancing of HTTP(S) traffic to dual-stack servers (ABAP and Java).</span></span> <span data-ttu-id="09b13-157">多年以来，SAP 一直在提供有口皆碑的单堆栈应用程序服务器，当今只有极少数应用程序还在双堆栈部署模型中运行。</span><span class="sxs-lookup"><span data-stu-id="09b13-157">SAP has advocated single-stack application servers for years, so very few applications run on a dual-stack deployment model nowadays.</span></span> <span data-ttu-id="09b13-158">体系结构示意图中所示的 Azure 负载均衡器为 SAP Web 调度程序实施高可用性群集。</span><span class="sxs-lookup"><span data-stu-id="09b13-158">The Azure load balancer shown in the architecture diagram implements the high availability cluster for the SAP Web Dispatcher.</span></span>
-
-<span data-ttu-id="09b13-159">对发往应用程序服务器的流量执行的负载均衡在 SAP 内部处理。</span><span class="sxs-lookup"><span data-stu-id="09b13-159">Load balancing of traffic to the application servers is handled within SAP.</span></span> <span data-ttu-id="09b13-160">对于通过 DIAG 和远程函数调用 (RFC) 连接到 SAP 服务器的 SAPGUI 客户端发出的流量，SCS 消息服务器通过创建 SAP 应用服务器[登录组][logon-groups]进行负载均衡。</span><span class="sxs-lookup"><span data-stu-id="09b13-160">For traffic from SAPGUI clients connecting to a SAP server via DIAG and Remote Function Calls (RFC), the SCS message server balances the load by creating SAP App Server [Logon Groups][logon-groups].</span></span> 
-
-<span data-ttu-id="09b13-161">SMLG 是一个 SAP ABAP 事务，用于管理 SAP 中心服务的登录负载均衡功能。</span><span class="sxs-lookup"><span data-stu-id="09b13-161">SMLG is an SAP ABAP transaction used to manage the logon load balancing capability of SAP Central Services.</span></span> <span data-ttu-id="09b13-162">登录组的后端池包含多个 ABAP 应用程序服务器。</span><span class="sxs-lookup"><span data-stu-id="09b13-162">The backend pool of the logon group has more than one ABAP application server.</span></span> <span data-ttu-id="09b13-163">访问 ASCS 群集服务的客户端通过前端 IP 地址连接到 Azure 负载均衡器。</span><span class="sxs-lookup"><span data-stu-id="09b13-163">Clients accessing ASCS cluster services connect to the Azure load balancer through a frontend IP address.</span></span> <span data-ttu-id="09b13-164">ASCS 群集虚拟网络名称也包含 IP 地址。</span><span class="sxs-lookup"><span data-stu-id="09b13-164">The ASCS cluster virtual network name also has an IP address.</span></span> <span data-ttu-id="09b13-165">可以选择性地将此地址与 Azure 负载均衡器上的其他 IP 地址相关联，以便能够远程管理群集。</span><span class="sxs-lookup"><span data-stu-id="09b13-165">Optionally, this address can be associated with an additional IP address on the Azure load balancer, so that the cluster can be managed remotely.</span></span>  
-
-### <a name="nics"></a><span data-ttu-id="09b13-166">NIC</span><span class="sxs-lookup"><span data-stu-id="09b13-166">NICs</span></span>
-
-<span data-ttu-id="09b13-167">SAP 布局管理功能需要分离不同 NIC 上的服务器流量。</span><span class="sxs-lookup"><span data-stu-id="09b13-167">SAP landscape management functions require segregation of server traffic on different NICs.</span></span> <span data-ttu-id="09b13-168">例如，业务数据应与管理流量和备份流量相隔离。</span><span class="sxs-lookup"><span data-stu-id="09b13-168">For example, business data should be separated from administrative traffic and backup traffic.</span></span> <span data-ttu-id="09b13-169">将多个 NIC 分配到不同的子网即可实现此数据分离。</span><span class="sxs-lookup"><span data-stu-id="09b13-169">Assigning multiple NICs to different subnets enables this data segregation.</span></span> <span data-ttu-id="09b13-170">有关详细信息，请参阅[为 SAP NetWeaver 和 SAP HANA 构建高可用性][sap-ha] (PDF) 中的“网络”。</span><span class="sxs-lookup"><span data-stu-id="09b13-170">For more information, see "Network" in [Building High Availability for SAP NetWeaver and SAP HANA][sap-ha] (PDF).</span></span>
-
-<span data-ttu-id="09b13-171">将管理 NIC 分配到管理子网，将数据通信 NIC 分配到独立的子网。</span><span class="sxs-lookup"><span data-stu-id="09b13-171">Assign the administration NIC to the management subnet, and assign the data communication NIC to a separate subnet.</span></span> <span data-ttu-id="09b13-172">有关配置详细信息，请参阅[创建并管理具有多个 NIC 的 Windows 虚拟机][multiple-vm-nics]。</span><span class="sxs-lookup"><span data-stu-id="09b13-172">For configuration details, see [Create and manage a Windows virtual machine that has multiple NICs][multiple-vm-nics].</span></span>
-
-### <a name="azure-storage"></a><span data-ttu-id="09b13-173">Azure 存储</span><span class="sxs-lookup"><span data-stu-id="09b13-173">Azure Storage</span></span>
-
-<span data-ttu-id="09b13-174">对于所有数据库服务器 VM，我们建议使用 Azure 高级存储，以保持一致的读/写延迟。</span><span class="sxs-lookup"><span data-stu-id="09b13-174">With all database server VMs, we recommend using Azure Premium Storage for consistent read/write latency.</span></span> <span data-ttu-id="09b13-175">对于 SAP 应用程序服务器，包括 (A)SCS 虚拟机，可以使用标准 Azure 存储，因为应用程序执行在内存中发生，只将磁盘用于日志记录。</span><span class="sxs-lookup"><span data-stu-id="09b13-175">For SAP application servers, including the (A)SCS virtual machines, you can use Azure Standard Storage, because application execution takes place in memory and uses disks for logging only.</span></span>
-
-<span data-ttu-id="09b13-176">为了获得最高可靠性，我们建议使用 [Azure 托管磁盘][managed-disks]。</span><span class="sxs-lookup"><span data-stu-id="09b13-176">For best reliability, we recommend using [Azure Managed Disks][managed-disks].</span></span> <span data-ttu-id="09b13-177">托管磁盘可确保隔离可用性集中 VM 的磁盘，以避免单一故障点。</span><span class="sxs-lookup"><span data-stu-id="09b13-177">Managed disks ensure that the disks for VMs within an availability set are isolated to avoid single points of failure.</span></span>
-
-> [!NOTE]
-> <span data-ttu-id="09b13-178">目前，此参考体系结构的资源管理器模板不使用托管磁盘。</span><span class="sxs-lookup"><span data-stu-id="09b13-178">Currently the Resource Manager template for this reference architecture does not use managed disks.</span></span> <span data-ttu-id="09b13-179">我们正在计划将该模板更新为使用托管磁盘。</span><span class="sxs-lookup"><span data-stu-id="09b13-179">We are planning to update the template to use managed disks.</span></span>
-
-<span data-ttu-id="09b13-180">若要实现较高的 IOPS 和磁盘带宽吞吐量，可向 Azure 存储布局应用优化存储卷性能时采用的常见做法。</span><span class="sxs-lookup"><span data-stu-id="09b13-180">To achieve high IOPS and disk bandwidth throughput, the common practices in storage volume performance optimization apply to Azure storage layout.</span></span> <span data-ttu-id="09b13-181">例如，将多个磁盘一起条带化以创建更大的磁盘卷可以提高 IO 性能。</span><span class="sxs-lookup"><span data-stu-id="09b13-181">For example, striping multiple disks together to create a larger disk volume improves IO performance.</span></span> <span data-ttu-id="09b13-182">针对不经常更改的存储内容启用读取缓存可增强数据检索的速度。</span><span class="sxs-lookup"><span data-stu-id="09b13-182">Enabling the read cache on storage content that changes infrequently enhances the speed of data retrieval.</span></span> <span data-ttu-id="09b13-183">有关性能要求的详细信息，请参阅 [SAP 说明 1943937 - 硬件配置检查工具][sap-1943937]。</span><span class="sxs-lookup"><span data-stu-id="09b13-183">For details about performance requirements, see [SAP note 1943937 - Hardware Configuration Check Tool][sap-1943937].</span></span>
-
-<span data-ttu-id="09b13-184">对于备份数据存储，我们建议使用 Azure Blob 存储的[冷存储层][cool-blob-storage]。</span><span class="sxs-lookup"><span data-stu-id="09b13-184">For the backup data store, we recommend using the [cool storage tier][cool-blob-storage] of Azure Blob storage.</span></span> <span data-ttu-id="09b13-185">冷存储层是存储不经常访问且长期留存的数据的经济高效方式。</span><span class="sxs-lookup"><span data-stu-id="09b13-185">The cool storage tier is a cost-effective way to store data that is less frequently accessed and long-lived.</span></span>
-
-## <a name="scalability-considerations"></a><span data-ttu-id="09b13-186">可伸缩性注意事项</span><span class="sxs-lookup"><span data-stu-id="09b13-186">Scalability considerations</span></span>
-
-<span data-ttu-id="09b13-187">在 SAP 应用程序层，Azure 提供多种虚拟机大小供纵向扩展。</span><span class="sxs-lookup"><span data-stu-id="09b13-187">At the SAP application layer, Azure offers a wide range of virtual machine sizes for scaling up.</span></span> <span data-ttu-id="09b13-188">有关详尽列表，请参阅 [SAP 说明 1928533 - Azure 上的 SAP 应用程序：支持的产品和 Azure VM 类型][sap-1928533]。</span><span class="sxs-lookup"><span data-stu-id="09b13-188">For an inclusive list, see [SAP note 1928533 - SAP Applications on Azure: Supported Products and Azure VM Types][sap-1928533].</span></span> <span data-ttu-id="09b13-189">通过将更多 VM 添加到可用性集进行横向扩展。</span><span class="sxs-lookup"><span data-stu-id="09b13-189">Scale out by adding more VMs to the availability set.</span></span>
-
-<span data-ttu-id="09b13-190">对于同时包含 OLTP 和 OLAP SAP 应用程序的 Azure 虚拟机上的 SAP HANA，SAP 认证的虚拟机大小是 GS5，其中只能包含一个 VM 实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-190">For SAP HANA on Azure virtual machines with both OLTP and OLAP SAP applications, the SAP-certified virtual machine size is GS5 with a single VM instance.</span></span> <span data-ttu-id="09b13-191">对于共置在 Microsoft Azure 认证数据中心内物理服务器上的 SAP HANA 所用的较大型工作负荷，Microsoft 还提供 [Azure 大型实例][azure-large-instances]，其中目前提供多达 4 TB 的内存容量用于托管单个实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-191">For larger workloads, Microsoft also offers [Azure Large Instances][azure-large-instances] for SAP HANA on physical servers co-located in a Microsoft Azure certified datacenter, which provides up to 4 TB of memory capacity for a single instance at this time.</span></span> <span data-ttu-id="09b13-192">凭借多达 32 TB 的总内存容量，还可以实现多节点配置。</span><span class="sxs-lookup"><span data-stu-id="09b13-192">Multi-node configuration is also possible with a total memory capacity of up to 32 TB.</span></span>
-
-## <a name="availability-considerations"></a><span data-ttu-id="09b13-193">可用性注意事项</span><span class="sxs-lookup"><span data-stu-id="09b13-193">Availability considerations</span></span>
-
-<span data-ttu-id="09b13-194">在集中式数据库上实施的这种 SAP 应用程序分布式安装中，将会复制基本安装以实现高可用性。</span><span class="sxs-lookup"><span data-stu-id="09b13-194">In this distributed installation of the SAP application on a centralized database, the base installation is replicated to achieve high availability.</span></span> <span data-ttu-id="09b13-195">对于体系结构的每个层，高可用性设计各不相同：</span><span class="sxs-lookup"><span data-stu-id="09b13-195">For each layer of the architecture, the high availability design varies:</span></span>
-
-- <span data-ttu-id="09b13-196">**Web 调度程序。**</span><span class="sxs-lookup"><span data-stu-id="09b13-196">**Web Dispatcher.**</span></span> <span data-ttu-id="09b13-197">高可用性是使用处理 SAP 应用程序流量的冗余 SAP Web 调度程序实例实现的。</span><span class="sxs-lookup"><span data-stu-id="09b13-197">High availability is achieved with redundant SAP Web Dispatcher instances with SAP application traffic.</span></span> <span data-ttu-id="09b13-198">请参阅 SAP 文档中的 [SAP Web 调度程序][swd]。</span><span class="sxs-lookup"><span data-stu-id="09b13-198">See [SAP Web Dispatcher][swd] in the SAP Documentation.</span></span>
-
-- <span data-ttu-id="09b13-199">**ASCS。**</span><span class="sxs-lookup"><span data-stu-id="09b13-199">**ASCS.**</span></span> <span data-ttu-id="09b13-200">若要对 Azure Windows 虚拟机上的 ASCS 实现高可用性，可将 Windows 服务器故障转移群集与 SIOS DataKeeper 配合使用，以实施群集共享卷。</span><span class="sxs-lookup"><span data-stu-id="09b13-200">For high availability of ASCS on Azure Windows virtual machines, Windows Sever Failover Clustering is used with SIOS DataKeeper to implement the cluster shared volume.</span></span> <span data-ttu-id="09b13-201">有关实施方式的详细信息，请参阅[在 Azure 上组建 SAP ASCS 群集][clustering]。</span><span class="sxs-lookup"><span data-stu-id="09b13-201">For implementation details, see [Clustering SAP ASCS on Azure][clustering].</span></span>
-
-- <span data-ttu-id="09b13-202">**应用程序服务器。**</span><span class="sxs-lookup"><span data-stu-id="09b13-202">**Application servers.**</span></span> <span data-ttu-id="09b13-203">可通过对应用程序服务器池中的流量进行负载均衡来实现高可用性。</span><span class="sxs-lookup"><span data-stu-id="09b13-203">High availability is achieved by load balancing traffic within a pool of application servers.</span></span>
-
-- <span data-ttu-id="09b13-204">**数据库层。**</span><span class="sxs-lookup"><span data-stu-id="09b13-204">**Database tier.**</span></span> <span data-ttu-id="09b13-205">此参考体系结构部署单个 SAP HANA 数据库实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-205">This reference architecture deploys a single SAP HANA database instance.</span></span> <span data-ttu-id="09b13-206">为实现高可用性，可部署多个实例，并使用 HANA 系统复制 (HSR) 来实现手动故障转移。</span><span class="sxs-lookup"><span data-stu-id="09b13-206">For high availability, deploy more than one instance and use HANA System Replication (HSR) to implement manual failover.</span></span> <span data-ttu-id="09b13-207">若要实现自动故障转移，需要特定 Linux 分发版的 HA 扩展。</span><span class="sxs-lookup"><span data-stu-id="09b13-207">To enable automatic failover, an HA extension for the specific Linux distribution is required.</span></span>
-
-### <a name="disaster-recovery-considerations"></a><span data-ttu-id="09b13-208">灾难恢复注意事项</span><span class="sxs-lookup"><span data-stu-id="09b13-208">Disaster recovery considerations</span></span>
-
-<span data-ttu-id="09b13-209">每个层使用不同的策略提供灾难恢复 (DR) 保护。</span><span class="sxs-lookup"><span data-stu-id="09b13-209">Each tier uses a different strategy to provide disaster recovery (DR) protection.</span></span>
-
-- <span data-ttu-id="09b13-210">**应用程序服务器。**</span><span class="sxs-lookup"><span data-stu-id="09b13-210">**Application servers.**</span></span> <span data-ttu-id="09b13-211">SAP 应用程序服务器不包含业务数据。</span><span class="sxs-lookup"><span data-stu-id="09b13-211">SAP application servers don't contain business data.</span></span> <span data-ttu-id="09b13-212">在 Azure 上，简单的 DR 策略是在另一个区域中创建 SAP 应用程序服务器。</span><span class="sxs-lookup"><span data-stu-id="09b13-212">On Azure, a simple DR strategy is to create SAP application servers in another region.</span></span> <span data-ttu-id="09b13-213">在主要应用程序服务器上进行任何配置更改或内核更新，都必须将相同的更改复制到 DR 区域中的 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-213">Upon any configuration changes or kernel updates on the primary application server, the same changes must be copied to VMs in the DR region.</span></span> <span data-ttu-id="09b13-214">例如，将内核可执行文件复制到 DR VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-214">For example, the kernel executables copied to the DR VMs.</span></span>
-
-- <span data-ttu-id="09b13-215">**SAP 中心服务。**</span><span class="sxs-lookup"><span data-stu-id="09b13-215">**SAP Central Services.**</span></span> <span data-ttu-id="09b13-216">SAP 应用程序堆栈的此组件也不会保存业务数据。</span><span class="sxs-lookup"><span data-stu-id="09b13-216">This component of the SAP application stack also doesn't persist business data.</span></span> <span data-ttu-id="09b13-217">可以在 DR 区域中生成一个用于运行 SCS 角色的 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-217">You can build a VM in the DR region to run the SCS role.</span></span> <span data-ttu-id="09b13-218">在主要 SCS 节点中，要同步的唯一内容是 **/sapmnt** 共享内容。</span><span class="sxs-lookup"><span data-stu-id="09b13-218">The only content from the primary SCS node to synchronize is the **/sapmnt** share content.</span></span> <span data-ttu-id="09b13-219">此外，如果主要 SCS 服务器上发生配置更改或内核更新，必须在 DR SCS 上重复这些操作。</span><span class="sxs-lookup"><span data-stu-id="09b13-219">Also, if configuration changes or kernel updates take place on the primary SCS servers, they must be repeated on the DR SCS.</span></span> <span data-ttu-id="09b13-220">若要同步两个服务器，只需使用定期计划的复制作业将 **/sapmnt** 复制到 DR 端。</span><span class="sxs-lookup"><span data-stu-id="09b13-220">To synchronize the two servers, simply use a regularly scheduled copy job to copy **/sapmnt** to the DR side.</span></span> <span data-ttu-id="09b13-221">有关生成、复制和测试故障转移过程的详细信息，请下载[ SAP NetWeaver：生成基于 Hyper-V 和 Microsoft Azure 的灾难恢复解决方案][sap-netweaver-dr]，并参阅“4.3.</span><span class="sxs-lookup"><span data-stu-id="09b13-221">For details about the build, copy, and test failover process, download [SAP NetWeaver: Building a Hyper-V and Microsoft Azure–based Disaster Recovery Solution][sap-netweaver-dr], and refer to "4.3.</span></span> <span data-ttu-id="09b13-222">SAP SPOF 层 (ASCS)”。</span><span class="sxs-lookup"><span data-stu-id="09b13-222">SAP SPOF layer (ASCS)."</span></span>
-
-- <span data-ttu-id="09b13-223">**数据库层。**</span><span class="sxs-lookup"><span data-stu-id="09b13-223">**Database tier.**</span></span> <span data-ttu-id="09b13-224">使用 HANA 支持的复制解决方案，例如 HSR 或存储复制。</span><span class="sxs-lookup"><span data-stu-id="09b13-224">Use HANA-supported replication solutions such as HSR or Storage Replication.</span></span> 
-
-## <a name="manageability-considerations"></a><span data-ttu-id="09b13-225">可管理性注意事项</span><span class="sxs-lookup"><span data-stu-id="09b13-225">Manageability considerations</span></span>
-
-<span data-ttu-id="09b13-226">SAP HANA 提供一个使用底层 Azure 基础结构的备份功能。</span><span class="sxs-lookup"><span data-stu-id="09b13-226">SAP HANA has a backup feature that uses the underlying Azure infrastructure.</span></span> <span data-ttu-id="09b13-227">若要备份 Azure 虚拟机上运行的 SAP HANA 数据库，可同时使用 SAP HANA 快照和 Azure 存储快照，以确保备份文件的一致性。</span><span class="sxs-lookup"><span data-stu-id="09b13-227">To back up the SAP HANA database running on Azure virtual machines, both the SAP HANA snapshot and Azure storage snapshot are used to ensure the consistency of backup files.</span></span> <span data-ttu-id="09b13-228">有关详细信息，请参阅 [Azure 虚拟机上的 SAP HANA 备份指南][hana-backup]和 [Azure 备份服务常见问题解答][backup-faq]。</span><span class="sxs-lookup"><span data-stu-id="09b13-228">For details, see [Backup guide for SAP HANA on Azure Virtual Machines][hana-backup] and the [Azure Backup service FAQ][backup-faq].</span></span>
-
-<span data-ttu-id="09b13-229">Azure 提供多种功能用于[监视和诊断][monitoring]整个基础结构。</span><span class="sxs-lookup"><span data-stu-id="09b13-229">Azure provides several functions for [monitoring and diagnostics][monitoring] of the overall infrastructure.</span></span> <span data-ttu-id="09b13-230">此外，Azure Operations Management Suite (OMS) 可处理 Azure 虚拟机（Linux 或 Windows）的增强型监视。</span><span class="sxs-lookup"><span data-stu-id="09b13-230">Also, enhanced monitoring of Azure virtual machines (Linux or Windows) is handled by Azure Operations Management Suite (OMS).</span></span>
-
-<span data-ttu-id="09b13-231">若要针对 SAP 基础结构的资源和服务性能提供基于 SAP 的监视，可使用 Azure SAP 增强型监视扩展。</span><span class="sxs-lookup"><span data-stu-id="09b13-231">To provide SAP-based monitoring of resources and service performance of the SAP infrastructure, use the Azure SAP Enhanced Monitoring extension.</span></span> <span data-ttu-id="09b13-232">此扩展会将 Azure 监视统计信息馈送到 SAP 应用程序，以执行操作系统监视和 DBA Cockpit 功能。</span><span class="sxs-lookup"><span data-stu-id="09b13-232">This extension feeds Azure monitoring statistics into the SAP application for operating system monitoring and DBA Cockpit functions.</span></span> 
-
-## <a name="security-considerations"></a><span data-ttu-id="09b13-233">安全注意事项</span><span class="sxs-lookup"><span data-stu-id="09b13-233">Security considerations</span></span>
-
-<span data-ttu-id="09b13-234">SAP 具有自身的用户管理引擎 (UME)，可在 SAP 应用程序中控制基于角色的访问和授权。</span><span class="sxs-lookup"><span data-stu-id="09b13-234">SAP has its own Users Management Engine (UME) to control role-based access and authorization within the SAP application.</span></span> <span data-ttu-id="09b13-235">有关详细信息，请参阅 [SAP HANA 安全性 - 概述][sap-security]。</span><span class="sxs-lookup"><span data-stu-id="09b13-235">For details, see [SAP HANA Security - An Overview][sap-security].</span></span> <span data-ttu-id="09b13-236">（需要创建一个 SAP 服务 Marketplace 帐户进行访问。）</span><span class="sxs-lookup"><span data-stu-id="09b13-236">(A SAP Service Marketplace account is required for access.)</span></span>
-
-<span data-ttu-id="09b13-237">在基础结构安全性方面，传输中数据和静态数据会受到保护。</span><span class="sxs-lookup"><span data-stu-id="09b13-237">For infrastructure security, data is safeguarded in transit and at rest.</span></span> <span data-ttu-id="09b13-238">可参考 [Azure 虚拟机 (VM) 上的 SAP NetWeaver - 规划和实施指南][netweaver-on-azure]的“安全注意事项”部分解决网络安全问题。</span><span class="sxs-lookup"><span data-stu-id="09b13-238">The “Security considerations” section of the [SAP NetWeaver on Azure Virtual Machines (VMs) – Planning and Implementation Guide][netweaver-on-azure] begins to address network security.</span></span> <span data-ttu-id="09b13-239">该指南还指定了为使应用程序能够通信，而必须在防火墙中打开的网络端口。</span><span class="sxs-lookup"><span data-stu-id="09b13-239">The guide also specifies the network ports you must open on the firewalls to allow application communication.</span></span> 
-
-<span data-ttu-id="09b13-240">若要加密 Windows 和 Linux IaaS 虚拟机磁盘，可以使用 [Azure 磁盘加密][disk-encryption]。</span><span class="sxs-lookup"><span data-stu-id="09b13-240">To encrypt Windows and Linux IaaS virtual machine disks, you can use [Azure Disk Encryption][disk-encryption].</span></span> <span data-ttu-id="09b13-241">Azure 磁盘加密使用 Windows 的 BitLocker 功能和 Linux 的 DM-Crypt 功能，为操作系统和数据磁盘提供卷加密。</span><span class="sxs-lookup"><span data-stu-id="09b13-241">Azure Disk Encryption uses the BitLocker feature of Windows and the DM-Crypt feature of Linux to provide volume encryption for the operating system and the data disks.</span></span> <span data-ttu-id="09b13-242">该解决方案还可与 Azure Key Vault 配合工作，帮助管理 Key Vault 订阅中的磁盘加密密钥和机密。</span><span class="sxs-lookup"><span data-stu-id="09b13-242">The solution also works with Azure Key Vault to help you control and manage the disk-encryption keys and secrets in your Key Vault subscription.</span></span> <span data-ttu-id="09b13-243">虚拟机磁盘上的数据将在 Azure 存储中静态加密。</span><span class="sxs-lookup"><span data-stu-id="09b13-243">Data on the virtual machine disks are encrypted at rest in your Azure storage.</span></span>
-
-<span data-ttu-id="09b13-244">对于 SAP HANA 静态数据加密，我们建议使用 SAP HANA 本机加密技术。</span><span class="sxs-lookup"><span data-stu-id="09b13-244">For SAP HANA data-at-rest encryption, we recommend using the SAP HANA native encryption technology.</span></span>
-
-> [!NOTE]
-> <span data-ttu-id="09b13-245">请不要在同一台服务器上同时使用 HANA 静态数据加密和 Azure 磁盘加密。</span><span class="sxs-lookup"><span data-stu-id="09b13-245">Don't use the HANA data-at-rest encryption with Azure disk encryption on the same server.</span></span>
-
-<span data-ttu-id="09b13-246">考虑使用[网络安全组][nsg] (NSG) 来限制 VNet 中不同子网之间的流量。</span><span class="sxs-lookup"><span data-stu-id="09b13-246">Consider using [network security groups][nsg] (NSGs) to restrict traffic between the various subnets in the VNet.</span></span>
-
-## <a name="deploy-the-solution"></a><span data-ttu-id="09b13-247">部署解决方案</span><span class="sxs-lookup"><span data-stu-id="09b13-247">Deploy the solution</span></span> 
-
-<span data-ttu-id="09b13-248">[GitHub][github] 中提供了此参考体系结构的部署脚本。</span><span class="sxs-lookup"><span data-stu-id="09b13-248">The deployment scripts for this reference architecture are available on [GitHub][github].</span></span>
-
-
-### <a name="prerequisites"></a><span data-ttu-id="09b13-249">先决条件</span><span class="sxs-lookup"><span data-stu-id="09b13-249">Prerequisites</span></span>
-
-- <span data-ttu-id="09b13-250">必须有权访问 SAP 软件下载中心才能完成安装。</span><span class="sxs-lookup"><span data-stu-id="09b13-250">You must have access to the SAP Software Download Center to complete the installation.</span></span>
- 
-- <span data-ttu-id="09b13-251">安装最新版本的 [Azure PowerShell][azure-ps]。</span><span class="sxs-lookup"><span data-stu-id="09b13-251">Install the latest version of [Azure PowerShell][azure-ps].</span></span> 
-
-- <span data-ttu-id="09b13-252">此部署需要 51 个核心。</span><span class="sxs-lookup"><span data-stu-id="09b13-252">This deployment requires 51 cores.</span></span> <span data-ttu-id="09b13-253">在部署之前，请验证订阅是否有足够的 VM 核心配额。</span><span class="sxs-lookup"><span data-stu-id="09b13-253">Before deploying, verify that your subscription has sufficient quota for VM cores.</span></span> <span data-ttu-id="09b13-254">如果没有，请使用 Azure 门户提交支持请求，以获取更高的配额。</span><span class="sxs-lookup"><span data-stu-id="09b13-254">If not, use the Azure portal to submit a support request for more quota.</span></span>
- 
-- <span data-ttu-id="09b13-255">此部署使用 GS 系列 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-255">This deployment uses a GS-series VM.</span></span> <span data-ttu-id="09b13-256">在[此处][region-availability]检查 GS 系列是否在每个区域中可用。</span><span class="sxs-lookup"><span data-stu-id="09b13-256">Check the availability of the GS series per region [here][region-availability].</span></span>
-
-- <span data-ttu-id="09b13-257">若要估算此项部署的成本，请参阅 [Azure 定价计算器][azure-pricing]。</span><span class="sxs-lookup"><span data-stu-id="09b13-257">To estimate the cost of this deployment, see the [Azure Pricing Calculator][azure-pricing].</span></span> 
- 
-<span data-ttu-id="09b13-258">此参考体系结构部署以下 VM：</span><span class="sxs-lookup"><span data-stu-id="09b13-258">This reference architecture deploys the following VMs:</span></span>
-
-| <span data-ttu-id="09b13-259">资源名称</span><span class="sxs-lookup"><span data-stu-id="09b13-259">Resource name</span></span> | <span data-ttu-id="09b13-260">VM 大小</span><span class="sxs-lookup"><span data-stu-id="09b13-260">VM Size</span></span> | <span data-ttu-id="09b13-261">目的</span><span class="sxs-lookup"><span data-stu-id="09b13-261">Purpose</span></span>  |
-|---------------|---------|----------|
-| <span data-ttu-id="09b13-262">`ra-sapApps-scs-vm1` ... `ra-sapApps-scs-vmN`</span><span class="sxs-lookup"><span data-stu-id="09b13-262">`ra-sapApps-scs-vm1` ... `ra-sapApps-scs-vmN`</span></span> | <span data-ttu-id="09b13-263">DS11v2</span><span class="sxs-lookup"><span data-stu-id="09b13-263">DS11v2</span></span> | <span data-ttu-id="09b13-264">SAP 中心服务</span><span class="sxs-lookup"><span data-stu-id="09b13-264">SAP Central Services</span></span> |
-| <span data-ttu-id="09b13-265">`ra-sapApps-vm1` ... `ra-sapApps-vmN`</span><span class="sxs-lookup"><span data-stu-id="09b13-265">`ra-sapApps-vm1` ... `ra-sapApps-vmN`</span></span> | <span data-ttu-id="09b13-266">DS11v2</span><span class="sxs-lookup"><span data-stu-id="09b13-266">DS11v2</span></span> | <span data-ttu-id="09b13-267">SAP NetWeaver 应用程序</span><span class="sxs-lookup"><span data-stu-id="09b13-267">SAP NetWeaver application</span></span> |
-| <span data-ttu-id="09b13-268">`ra-sap-wdp-vm1` ... `ra-sap-wdp-vmN`</span><span class="sxs-lookup"><span data-stu-id="09b13-268">`ra-sap-wdp-vm1` ... `ra-sap-wdp-vmN`</span></span> | <span data-ttu-id="09b13-269">DS11v2</span><span class="sxs-lookup"><span data-stu-id="09b13-269">DS11v2</span></span> | <span data-ttu-id="09b13-270">SAP Web 调度程序</span><span class="sxs-lookup"><span data-stu-id="09b13-270">SAP Web Dispatcher</span></span> |
-| `ra-sap-data-vm1` | <span data-ttu-id="09b13-271">GS5</span><span class="sxs-lookup"><span data-stu-id="09b13-271">GS5</span></span> | <span data-ttu-id="09b13-272">SAP HANA 数据库实例</span><span class="sxs-lookup"><span data-stu-id="09b13-272">SAP HANA database instance</span></span> |
-| `ra-sap-jumpbox-vm1` | <span data-ttu-id="09b13-273">DS1V2</span><span class="sxs-lookup"><span data-stu-id="09b13-273">DS1V2</span></span> | <span data-ttu-id="09b13-274">Jumpbox</span><span class="sxs-lookup"><span data-stu-id="09b13-274">Jumpbox</span></span> |
-
-<span data-ttu-id="09b13-275">部署单个 SAP HANA 实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-275">A single SAP HANA instance is deployed.</span></span> <span data-ttu-id="09b13-276">对于应用程序 VM，需在模板参数中指定要部署的实例数。</span><span class="sxs-lookup"><span data-stu-id="09b13-276">For the application VMs, the number of instances to deploy is specified in the template parameters.</span></span>
-
-### <a name="deploy-sap-infrastructure"></a><span data-ttu-id="09b13-277">部署 SAP 基础结构</span><span class="sxs-lookup"><span data-stu-id="09b13-277">Deploy SAP infrastructure</span></span>
-
-<span data-ttu-id="09b13-278">可以增量方式部署此体系结构，或一次性部署整个体系结构。</span><span class="sxs-lookup"><span data-stu-id="09b13-278">You can deploy this architecture incrementally or all at once.</span></span> <span data-ttu-id="09b13-279">对于首次部署，我们建议采用增量方式，以了解每个部署步骤的作用。</span><span class="sxs-lookup"><span data-stu-id="09b13-279">The first time, we recommend an incremental deployment, so that you can see what each deployment step does.</span></span> <span data-ttu-id="09b13-280">使用以下 *mode* 参数之一指定增量部署</span><span class="sxs-lookup"><span data-stu-id="09b13-280">Specify the increment using one of the following *mode* parameters</span></span>
-
-| <span data-ttu-id="09b13-281">Mode</span><span class="sxs-lookup"><span data-stu-id="09b13-281">Mode</span></span>           | <span data-ttu-id="09b13-282">作用</span><span class="sxs-lookup"><span data-stu-id="09b13-282">What it does</span></span>                                                                                                            |
-|----------------|-----------------------------------------------------|
-| <span data-ttu-id="09b13-283">infrastructure</span><span class="sxs-lookup"><span data-stu-id="09b13-283">infrastructure</span></span> | <span data-ttu-id="09b13-284">在 Azure 中部署网络基础结构。</span><span class="sxs-lookup"><span data-stu-id="09b13-284">Deploys the network infrastructure in Azure.</span></span>        |
-| <span data-ttu-id="09b13-285">workload</span><span class="sxs-lookup"><span data-stu-id="09b13-285">workload</span></span>       | <span data-ttu-id="09b13-286">将 SAP 服务器部署到网络。</span><span class="sxs-lookup"><span data-stu-id="09b13-286">Deploys the SAP servers to the network.</span></span>             |
-| <span data-ttu-id="09b13-287">本应返回的所有记录的总数，</span><span class="sxs-lookup"><span data-stu-id="09b13-287">all</span></span>            | <span data-ttu-id="09b13-288">部署上述所有部署。</span><span class="sxs-lookup"><span data-stu-id="09b13-288">Deploys all the preceding deployments.</span></span>              |
-
-<span data-ttu-id="09b13-289">若要部署解决方案，请执行以下步骤：</span><span class="sxs-lookup"><span data-stu-id="09b13-289">To deploy the solution, perform the following steps:</span></span>
-
-1. <span data-ttu-id="09b13-290">将 [GitHub 存储库][github]下载或克隆到本地计算机。</span><span class="sxs-lookup"><span data-stu-id="09b13-290">Download or clone the [GitHub repo][github] to your local computer.</span></span>
-
-2. <span data-ttu-id="09b13-291">打开 PowerShell 窗口并导航到 `/sap/sap-hana/` 文件夹。</span><span class="sxs-lookup"><span data-stu-id="09b13-291">Open a PowerShell window and navigate to the `/sap/sap-hana/` folder.</span></span>
-
-3. <span data-ttu-id="09b13-292">运行以下 Azure PowerShell cmdlet。</span><span class="sxs-lookup"><span data-stu-id="09b13-292">Run the following PowerShell cmdlet.</span></span> <span data-ttu-id="09b13-293">对于 `<subscription id>`，请使用自己的 Azure 订阅 ID。</span><span class="sxs-lookup"><span data-stu-id="09b13-293">For `<subscription id>`, use your Azure subscription ID.</span></span> <span data-ttu-id="09b13-294">对于 `<location>`，请指定一个 Azure 区域，例如 `eastus` 或 `westus`。</span><span class="sxs-lookup"><span data-stu-id="09b13-294">For `<location>`, specify an Azure region, such as `eastus` or `westus`.</span></span> <span data-ttu-id="09b13-295">对于 `<mode>`，请指定上面所列的模式之一。</span><span class="sxs-lookup"><span data-stu-id="09b13-295">For `<mode>`, specify one of the modes listed above.</span></span>
-
-    ```powershell
-     .\Deploy-ReferenceArchitecture -SubscriptionId <subscription id> -Location <location> -ResourceGroupName <resource group> <mode>
-    ```
-
-4.  <span data-ttu-id="09b13-296">根据提示登录到 Azure 帐户。</span><span class="sxs-lookup"><span data-stu-id="09b13-296">When prompted, log on to your Azure account.</span></span> 
-
-<span data-ttu-id="09b13-297">部署脚本可以需要花费几个小时才能完成，具体时间取决于所选的模式。</span><span class="sxs-lookup"><span data-stu-id="09b13-297">The deployment scripts can take up to several hours to complete, depending on the mode you selected.</span></span>
-
-> [!WARNING]
-> <span data-ttu-id="09b13-298">参数文件在不同的位置包含了硬编码的密码 (`AweS0me@PW`)。</span><span class="sxs-lookup"><span data-stu-id="09b13-298">The parameter files include a hard-coded password (`AweS0me@PW`) in various places.</span></span> <span data-ttu-id="09b13-299">在部署之前，请更改这些值。</span><span class="sxs-lookup"><span data-stu-id="09b13-299">Change these values before you deploy.</span></span>
- 
-### <a name="configure-sap-applications-and-database"></a><span data-ttu-id="09b13-300">配置 SAP 应用程序和数据库</span><span class="sxs-lookup"><span data-stu-id="09b13-300">Configure SAP applications and database</span></span>
-
-<span data-ttu-id="09b13-301">部署 SAP 基础结构后，请按如下所述在虚拟机上安装并配置 SAP 应用程序和 HANA 数据库。</span><span class="sxs-lookup"><span data-stu-id="09b13-301">After deploying the SAP infrastructure, install and configure your SAP applications and HANA database on the virtual machines as follows.</span></span>
-
-> [!NOTE]
-> <span data-ttu-id="09b13-302">如需 SAP 安装说明，必须使用 SAP 支持门户用户名和密码来下载 [SAP 安装指南][sap-guide]。</span><span class="sxs-lookup"><span data-stu-id="09b13-302">For SAP installation instructions, you must have a SAP Support Portal username and password to download the [SAP installation guides][sap-guide].</span></span>
-
-1. <span data-ttu-id="09b13-303">登录到 Jumpbox (`ra-sap-jumpbox-vm1`)。</span><span class="sxs-lookup"><span data-stu-id="09b13-303">Log into the jumpbox (`ra-sap-jumpbox-vm1`).</span></span> <span data-ttu-id="09b13-304">将使用 Jumpbox 登录到其他 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-304">You will use the jumpbox to log into the other VMs.</span></span> 
-
-2.  <span data-ttu-id="09b13-305">对于名为 `ra-sap-wdp-vm1` ... `ra-sap-wdp-vmN` 的每个 VM，请登录到该 VM，然后使用 [Web 调度程序安装][sap-dispatcher-install] wiki 中所述的步骤安装并配置 SAP Web 调度程序实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-305">For each VM named `ra-sap-wdp-vm1` ... `ra-sap-wdp-vmN`, log into the VM, and install and configure the SAP Web Dispatcher instance using the steps described in the [Web Dispatcher Installation][sap-dispatcher-install] wiki.</span></span>
-
-3.  <span data-ttu-id="09b13-306">登录到名为 `ra-sap-data-vm1` 的 VM。</span><span class="sxs-lookup"><span data-stu-id="09b13-306">Log into the VM named `ra-sap-data-vm1`.</span></span> <span data-ttu-id="09b13-307">使用 [SAP HANA 服务器安装和更新指南][hana-guide]安装并配置 SAP Hana 数据库实例。</span><span class="sxs-lookup"><span data-stu-id="09b13-307">Install and configure the SAP Hana Database instance using the [SAP HANA Server Installation and Update Guide][hana-guide].</span></span>
-
-4. <span data-ttu-id="09b13-308">对于名为 `ra-sapApps-scs-vm1` ... `ra-sapApps-scs-vmN` 的每个 VM，请登录到该 VM，然后使用 [SAP 安装指南][sap-guide]安装并配置 SAP 中心服务 (SCS)。</span><span class="sxs-lookup"><span data-stu-id="09b13-308">For each VM named `ra-sapApps-scs-vm1` ... `ra-sapApps-scs-vmN`, log into the VM, and install and configure the SAP Central Services (SCS) using the [SAP installation guides][sap-guide].</span></span>
-
-5.  <span data-ttu-id="09b13-309">对于名为 `ra-sapApps-vm1` ... `ra-sapApps-vmN` 的每个 VM，请登录到该 VM，然后使用 [SAP 安装指南][sap-guide]安装并配置 SAP NetWeaver 应用程序。</span><span class="sxs-lookup"><span data-stu-id="09b13-309">For each VM named `ra-sapApps-vm1` ... `ra-sapApps-vmN`, log into the VM, and install and configure the SAP NetWeaver application using the [SAP installation guides][sap-guide].</span></span>
-
-<span data-ttu-id="09b13-310">**此参考体系结构的供稿人** &mdash; Rick Rainey、Ross Sponholtz、Ben Trinh</span><span class="sxs-lookup"><span data-stu-id="09b13-310">**_Contributors to this reference architecture_** &mdash; Rick Rainey, Ross Sponholtz, Ben Trinh</span></span>
-
-[azure-large-instances]: /azure/virtual-machines/workloads/sap/hana-overview-architecture
-[azure-lb]: /azure/load-balancer/load-balancer-overview
-[azure-pricing]: https://azure.microsoft.com/pricing/calculator/
-[azure-ps]: /powershell/azure/overview
-[backup-faq]: /azure/backup/backup-azure-backup-faq
-[clustering]: https://blogs.msdn.microsoft.com/saponsqlserver/2015/05/20/clustering-sap-ascs-instance-using-windows-server-failover-cluster-on-microsoft-azure-with-sios-datakeeper-and-azure-internal-load-balancer/
-[cool-blob-storage]: /azure/storage/storage-blob-storage-tiers
-[disk-encryption]: /azure/security/azure-security-disk-encryption
-[github]: https://github.com/mspnp/reference-architectures/tree/master/sap/sap-hana
-[hana-backup]: /azure/virtual-machines/workloads/sap/sap-hana-backup-guide
-[hana-guide]: https://help.sap.com/viewer/2c1988d620e04368aa4103bf26f17727/2.0.01/en-US/7eb0167eb35e4e2885415205b8383584.html
-[hybrid-networking]: ../hybrid-networking/index.md
-[logon-groups]: https://wiki.scn.sap.com/wiki/display/SI/ABAP+Logon+Group+based+Load+Balancing
-[managed-disks]: /azure/storage/storage-managed-disks-overview
-[monitoring]: /azure/architecture/best-practices/monitoring
-[multiple-vm-nics]: /azure/virtual-machines/windows/multiple-nics
-[netweaver-on-azure]: /azure/virtual-machines/workloads/sap/planning-guide
-[nsg]: /azure/virtual-network/virtual-networks-nsg
-[region-availability]: https://azure.microsoft.com/regions/services/
-[running-SAP]: https://blogs.msdn.microsoft.com/saponsqlserver/2016/06/07/sap-on-sql-general-update-for-customers-partners-june-2016/
-[sap-1943937]: https://launchpad.support.sap.com/#/notes/1943937
-[sap-1928533]: https://launchpad.support.sap.com/#/notes/1928533
-[sap-dispatcher]: https://help.sap.com/doc/saphelp_nw73ehp1/7.31.19/en-US/48/8fe37933114e6fe10000000a421937/frameset.htm
-[sap-dispatcher-ha]: https://help.sap.com/doc/saphelp_nw73ehp1/7.31.19/en-US/48/9a9a6b48c673e8e10000000a42189b/frameset.htm
-[sap-dispatcher-install]: https://wiki.scn.sap.com/wiki/display/SI/Web+Dispatcher+Installation
-[sap-guide]: https://service.sap.com/instguides
-[sap-ha]: https://support.sap.com/content/dam/SAAP/SAP_Activate/AGS_70.pdf
-[sap-hana-on-azure]: https://azure.microsoft.com/services/virtual-machines/sap-hana/
-[sap-netweaver-dr]: http://download.microsoft.com/download/9/5/6/956FEDC3-702D-4EFB-A7D3-2DB7505566B6/SAP%20NetWeaver%20-%20Building%20an%20Azure%20based%20Disaster%20Recovery%20Solution%20V1_5%20.docx
-[sap-security]: https://archive.sap.com/documents/docs/DOC-62943
-[visio-download]: https://archcenter.blob.core.windows.net/cdn/SAP-HANA-architecture.vsdx
-[vm-sizes-mem]: /azure/virtual-machines/windows/sizes-memory
-[swd]: https://help.sap.com/doc/saphelp_nw70ehp2/7.02.16/en-us/48/8fe37933114e6fe10000000a421937/frameset.htm
-[0]: ./images/sap-hana.png "使用 Microsoft Azure 的 SAP HANA 体系结构"
+# <a name="sap-on-azure-reference-architectures"></a>Azure 上的 SAP 参考体系结构
+
+这些参考体系结构介绍了有关在 Azure 上运行生产 SAP 部署的成熟做法。 这些体系结构已经过配置，以提供高可用性和灾难恢复 (HADR)。
+
+<ul class="panelContent">
+<li style="display: flex; flex-direction: column;">
+    <a href="./sap-netweaver.md" style="display: flex; flex-direction: column; flex: 1 0 auto;">
+        <div class="cardSize" style="flex: 1 0 auto; display: flex;">
+            <div class="cardPadding" style="display: flex;">
+                <div class="card">
+                    <div class="cardImageOuter">
+                        <div class="cardImage">
+                            <img src="./images/sap-netweaver.svg" height="140px" />
+                        </div>
+                    </div>
+                    <div class="cardText">
+                        <h3>适用于 AnyDB 的 SAP NetWeaver</h3>
+                        <p>在 Windows 环境中运行 SAP NetWeaver。</p><p>此参考体系结构面向 AnyDB（除了 SAP HANA 之外，该 SAP 术语还指任何受支持的 DBMS）。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+</li>
+<li style="display: flex; flex-direction: column;">
+    <a href="./sap-s4hana.md" style="display: flex; flex-direction: column; flex: 1 0 auto;">
+        <div class="cardSize" style="flex: 1 0 auto; display: flex;">
+            <div class="cardPadding" style="display: flex;">
+                <div class="card">
+                    <div class="cardImageOuter">
+                        <div class="cardImage">
+                            <img src="./images/sap-s4hana.svg" height="140px" />
+                        </div>
+                    </div>
+                    <div class="cardText">
+                        <h3>SAP S/4HANA</h3>
+                        <p>在 Linux 环境中运行 SAP S/4HANA。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+</li>
+<li style="display: flex; flex-direction: column;">
+    <a href="./hana-large-instances.md" style="display: flex; flex-direction: column; flex: 1 0 auto;">
+        <div class="cardSize" style="flex: 1 0 auto; display: flex;">
+            <div class="cardPadding" style="display: flex;">
+                <div class="card">
+                    <div class="cardImageOuter">
+                        <div class="cardImage">
+                            <img src="./images/sap-hana-large-instances.svg" height="140px" />
+                        </div>
+                    </div>
+                    <div class="cardText">
+                        <h3>Azure SAP HANA 大型实例</h3>
+                        <p>HANA 大型实例部署在 Azure 区域中的物理服务器上。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+</li>
+</ul>

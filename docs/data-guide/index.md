@@ -5,11 +5,11 @@ author: zoinerTejada
 ms:date: 02/12/2018
 layout: LandingPage
 ms.topic: landing-page
-ms.openlocfilehash: 0975d056aa971c627ca91c9fc05c4e16e07b6fc0
-ms.sourcegitcommit: d08f6ee27e1e8a623aeee32d298e616bc9bb87ff
+ms.openlocfilehash: 63c1cca45fe9d99b5d0679360ef487c3a42da956
+ms.sourcegitcommit: bb348bd3a8a4e27ef61e8eee74b54b07b65dbf98
 ms.translationtype: HT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 05/07/2018
+ms.lasthandoff: 05/21/2018
 ---
 # <a name="azure-data-architecture-guide"></a>Azure 数据体系结构指南
 
@@ -21,7 +21,7 @@ ms.lasthandoff: 05/07/2018
 
 ## <a name="how-this-guide-is-structured"></a>本指南的结构
 
-本指南围绕数据解决方案的两个大类进行组织：传统 RDMBS 工作负荷和大数据解决方案。 
+本指南围绕数据解决方案的两个大类进行组织：传统 RDBMS 工作负荷和大数据解决方案。 
 
 **[传统 RDBMS 工作负荷](./relational-data/index.md)**。 这些工作负荷包括联机事务处理 (OLTP) 和联机分析处理 (OLAP)。 OLTP 系统中的数据通常是关系数据，附带预定义的架构和一组约束，可保留引用完整性。 通常，可以使用 ETL 过程来移动和转换源数据，将组织中多个源的数据合并到一个数据仓库中。
 

@@ -66,9 +66,16 @@
           href: dmz/secure-vnet-dmz.md
         - name: 高度可用的网络虚拟设备
           href: dmz/nva-ha.md
+    - name: SAP
+      href: sap/index.md
+      items:
+        - name: 适用于 AnyDB 的 SAP NetWeaver
+          href: sap/sap-netweaver.md
+        - name: SAP S/4HANA
+          href: sap/sap-s4hana.md
+        - name: Azure SAP HANA 大型实例
+          href: sap/hana-large-instances.md
     - name: Jenkins 服务器
       href: jenkins/index.md
-    - name: SAP NetWeaver 和 SAP HANA
-      href: sap/index.md
     - name: SharePoint Server 2016
       href: sharepoint/index.md
