@@ -444,7 +444,7 @@ Content-Type: application/json; charset=utf-8
 >
 
 ### <a name="header-versioning"></a>标头版本控制
-不是追加版本号作为查询字符串参数，而是可以实现指示资源的版本的自定义标头。 此方法需要客户端应用程序将相应标头添加到所有请求，虽然如果省略了版本标头，处理客户端请求的代码可以使用默认值（版本 1）。 下面的示例利用了名为 *Custom-Header* 的自定义标头。 此标头的值指示 Web API 的版本。
+不是追加版本号作为查询字符串参数，而是可以实现指示资源的版本的自定义标头。 此方法需要客户端应用程序将相应标头添加到所有请求，虽然如果省略了版本标头，处理客户端请求的代码可以使用默认值（版本 1）。 下面的示例使用了名为 *Custom-Header* 的自定义标头。 此标头的值指示 Web API 的版本。
 
 版本 1：
 
@@ -477,7 +477,7 @@ Content-Type: application/json; charset=utf-8
 请注意，与前面两个方法一样，实现 HATEOAS 需要在任何链接中包括相应的自定义标头。
 
 ### <a name="media-type-versioning"></a>媒体类型版本控制
-如本指南前面所述，当客户端应用程序向 Web 服务器发送 HTTP GET 请求时，它应使用 Accept 标头规定它可以处理的内容的格式。 通常，*Accept* 标头的用途是允许客户端应用程序指定响应的正文应是 XML、JSON 还是客户端可以分析的其他某种常见格式。 但是，可以定义包括以下信息的自定义媒体类型：该信息使客户端应用程序可以指示它所需的资源版本。 下面的示例演示了将 *Accept* 标头指定为值 *application/vnd.adventure-works.v1+json* 的请求。 *vnd.adventure-works.v1* 元素向 Web 服务器指示它应返回资源的版本 1，而 *json* 元素则指定响应正文的格式应为 JSON：
+如本指南前面所述，当客户端应用程序向 Web 服务器发送 HTTP GET 请求时，它应使用 Accept 标头规定它可以处理的内容的格式。 通常，*Accept* 标头的用途是允许客户端应用程序指定响应的正文应是 XML、JSON 还是客户端可以分析的其他某种常见格式。 但是，可以定义包括以下信息的自定义媒体类型：该信息使客户端应用程序可以指定所需资源的版本。 下面的示例演示了将 *Accept* 标头指定为值 *application/vnd.adventure-works.v1+json* 的请求。 *vnd.adventure-works.v1* 元素向 Web 服务器指示它应返回资源的版本 1，而 *json* 元素则指定响应正文的格式应为 JSON：
 
 ```HTTP
 GET http://adventure-works.com/customers/3 HTTP/1.1
