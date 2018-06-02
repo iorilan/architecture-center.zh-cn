@@ -28,13 +28,13 @@ ms.lasthandoff: 01/05/2018
 
 ### <a name="post-actions-that-create-new-resources-should-not-have-unrelated-side-effects"></a>创建新资源的 POST 操作不应具有不相关的副作用
 
-如果 POST 请求用于创建新资源，则请求的作用应限制为新资源（以及任何可能直接相关的资源，如果涉及某种关联）。例如，在电子商务系统中，创建新客户订单的 POST 请求可能还修改库存水平并生成计费信息，但它不应修改与订单不直接相关的信息，也不应对系统的整体状态有任何其他副作用。
+如果 POST 请求用于创建新资源，则请求的作用应限制为新资源（以及任何可能直接相关的资源，如果涉及某种关联）。例如，在电子商务系统中，创建新客户订单的 POST 请求可能还修改库存等级并生成计费信息，但它不应修改与订单不直接相关的信息，也不应对系统的整体状态有任何其他副作用。
 
 ### <a name="avoid-implementing-chatty-post-put-and-delete-operations"></a>避免实现琐碎的 POST、PUT 和 DELETE 操作
 
 支持对资源集合发出 POST、PUT 和 DELETE 请求。 POST 请求可以包含多个新资源的详细信息并将这些资源全都添加到同一个集合，PUT 请求可以替换集合中的整个资源集，DELETE 请求可以删除整个集合。
 
-ASP.NET Web API 2 中包含的 OData 支持提供了成批处理请求的功能。 客户端应用程序可以打包多个 Web API 请求并通过单个 HTTP 请求将其发送给服务器，然后接收包含每个请求的答复的单个 HTTP 响应。 有关详细信息，请参阅 [Introducing Batch Support in Web API and Web API OData](http://blogs.msdn.com/b/webdev/archive/2013/11/01/introducing-batch-support-in-web-api-and-web-api-odata.aspx)（Web API 和 Web API OData 中的批处理支持简介）。
+ASP.NET Web API 2 中包含的 OData 支持提供了成批处理请求的功能。 客户端应用程序可以打包多个 Web API 请求并通过单个 HTTP 请求将其发送给服务器，然后接收包含每个请求的答复的对应的 HTTP 响应。 有关详细信息，请参阅 [Introducing Batch Support in Web API and Web API OData](http://blogs.msdn.com/b/webdev/archive/2013/11/01/introducing-batch-support-in-web-api-and-web-api-odata.aspx)（Web API 和 Web API OData 中的批处理支持简介）。
 
 ### <a name="follow-the-http-specification-when-sending-a-response"></a>发送响应时请按照 HTTP 规范操作 
 
@@ -44,7 +44,7 @@ Web API 必须返回包含正确 HTTP 状态代码的消息（使客户端可以
 
 ### <a name="support-content-negotiation"></a>支持内容协商
 
-响应消息的正文可能包含不同格式的数据。 例如，HTTP GET 请求可以返回 JSON 或 XML 格式的数据。 客户端提交请求时，它可以包括指定它可以处理的数据格式的 Accept 标头。 这些格式将指定为媒体类型。 例如，发出用于检索图像的 GET 请求的客户端可以指定 Accept 标头，其中列出客户端可以处理的媒体类型，如“image/jpeg, image/gif, image/png”。  当 Web API 返回结果时，它应使用其中一种媒体类型设置数据格式，并在响应的 Content-Type 标头中指定该格式。
+响应消息的正文可能包含不同格式的数据。 例如，HTTP GET 请求可以返回 JSON 或 XML 格式的数据。 客户端提交请求时，它可以包括指定它可以处理的数据格式的 Accept 标头。 这些格式用于指定媒体类型。 例如，发出用于检索图像的 GET 请求的客户端可以指定 Accept 标头，其中列出客户端可以处理的媒体类型，如“image/jpeg, image/gif, image/png”。  当 Web API 返回结果时，它应使用其中一种媒体类型设置数据格式，并在响应的 Content-Type 标头中指定该格式。
 
 如果客户端未指定 Accept 标头，则对响应正文使用有意义的默认格式。 例如，ASP.NET Web API 框架对基于文本的数据默认使用 JSON 格式。
 
